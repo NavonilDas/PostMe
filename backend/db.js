@@ -1,9 +1,5 @@
 const mongo = require('mongoose');
-let url = 'mongodb://localhost:27017/PostMe';
-
-if (process.env.DB_USER) {
-    url = `mongodb://${process.env.DB_USER}:${process.env.DB_PASS}@localhost:27017/${process.env.DB_NAME}`;
-}
+let url = process.env.DB_URL || 'mongodb://mongo:27017/PostMe';
 
 mongo.connect(url,
     {
