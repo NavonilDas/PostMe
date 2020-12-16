@@ -1,0 +1,85 @@
+.d-flex {
+  display: flex;
+}
+
+.flex-column {
+  flex-direction: column;
+}
+
+.body {
+  margin: 16px 16px 0 16px;
+}
+
+.signup-form {
+  margin: 11px;
+}
+.signup-form > * {
+  margin-top: 11px !important;
+}
+
+.errorText {
+  font-size: 1.2em;
+  color: red;
+  margin: 10px;
+}
+
+.modal {
+  min-width: 200px;
+  min-height: 100px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  position: absolute;
+  background: #fff;
+  padding: 16px;
+}
+
+.post-container {
+  background-color: #fff;
+  margin-left: 10%;
+  margin-right: 10%;
+  margin-top: 15px;
+  padding: 11px;
+  display: flex;
+  flex-direction: column;
+}
+.post-container > * {
+  margin-top: 11px !important;
+}
+.post-editor .react-wysiwyg-typescript-editor {
+  max-height: 300px;
+  overflow-y: scroll;
+}
+
+.view-post {
+  padding: 15px;
+  margin: 15px 8% 15px 8%;
+}
+
+.post-comment > * {
+  margin-top: 11px;
+}
+#comments {
+  margin: 0 8% 15px 8%;
+}
+
+.comment {
+  padding: 11px;
+  background: #fff;
+}
+
+.comment > div {
+  border-left: 2px solid #a1a1a1;
+  padding-left: 11px;
+}
+.comment p {
+  margin: 0;
+}
+.comment-by{
+  font-size: 12px;
+  color:#a1a1a1;
+  font-weight: 500;
+}
+.comment-message{
+  font-size: 15px;
+}
