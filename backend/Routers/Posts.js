@@ -9,6 +9,7 @@ const mongoose = require('mongoose');
 const PostSchema = require('../Models/Post');
 
 const POST_PER_PAGE = 15;
+
 const SLUGIFY_OPTION = {
     replacement: '-',
     lower: true,
@@ -61,10 +62,10 @@ async function getUserID(req) {
         });
     });
 }
-
+// Controller For getting post list
 async function getListOfPosts(req, res) {
     if (!req.params.index) return res.status(400).json({ error: 'Index Not Found' });
-    const index = parseInt(req.params.index);
+    let index = parseInt(req.params.index);
     if (isNaN(index)) return res.status(400).json({ error: 'Invalid Index' });
     const user_id = await getUserID(req);
     if (user_id) {
@@ -74,17 +75,18 @@ async function getListOfPosts(req, res) {
                 let: {
                     abc: "$_id"
                 },
-                pipeline: [{
-                    $match: {
-                        $expr: {
-                            $and: [
-                                { user_id: new mongoose.Types.ObjectId(user_id) },
-                                { post_id: "$$abc" }
-                            ]
+                pipeline: [
+                    {
+                        $match: {
+                            $expr: {
+                                $and: [
+                                    { $eq: ["$post_id", "$$abc"] },
+                                    { $eq: ["$user_id", new mongoose.Types.ObjectId("5fec49c4afd2e13118303ee4")] }
+                                ]
+                            }
                         }
-                    }
-                },
-                { $project: { _id: 1, value: 1 } }],
+                    },
+                    { $project: { _id: 1, value: 1 } }],
                 as: "liked"
             }
         });
@@ -92,8 +94,6 @@ async function getListOfPosts(req, res) {
     }
     const posts = await PostSchema.aggregate(GET_POSTS_PIPELINE)
         .sort({ posted_at: -1 })
-        // .skip(index * POST_PER_PAGE)
-        // .limit(POST_PER_PAGE)
         .exec();
     if (user_id) {
         GET_POSTS_PIPELINE.splice(3, 2);
@@ -109,6 +109,11 @@ router.get('/:index', (req, res) => {
         res.status(500).json({ error: 'Internal Server Error' });
     });
 });
+
+// Controller For getting Post By Slug
+async function getPostBySlug(req, res) {
+}
+
 
 // Get Post By Slug
 router.get('/view/:slug', (req, res) => {
