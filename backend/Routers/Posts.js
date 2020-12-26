@@ -3,6 +3,7 @@ const JWT = require('../Middlewares/JWT');
 const slugify = require('slugify');
 const uuid = require('uuid');
 const jsonwebtoken = require('jsonwebtoken');
+const mongoose = require('mongoose');
 
 
 const PostSchema = require('../Models/Post');
@@ -16,58 +17,97 @@ const SLUGIFY_OPTION = {
 };
 
 
-// Get Post List
-router.get('/:index', (req, res) => {
+const GET_POSTS_PIPELINE = [
+    {
+        $lookup: {
+            from: require('../Models/User').collection.collectionName,
+            localField: "user_id",
+            foreignField: "_id",
+            as: "USER"
+        }
+    },
+    {
+        $unwind: "$USER"
+    },
+    {
+        $lookup: {
+            from: require('../Models/Comment').collection.collectionName,
+            localField: "_id",
+            foreignField: "post_id",
+            as: "COMMENTS"
+        }
+    },
+    {
+        $project: {
+            title: 1,
+            content: 1,
+            slug: 1,
+            posted_at: 1,
+            likes: 1,
+            "USER.name": 1,
+            comments: { $size: "$COMMENTS" },
+            liked: 1
+        }
+    }
+];
+
+async function getUserID(req) {
+    return new Promise(resolve => {
+        const secret = process.env.SECRET;
+        const { ID } = req.cookies || '';
+        jsonwebtoken.verify(ID, secret, (_, decoded) => {
+            const user_id = decoded ? decoded.id : null;
+            resolve(user_id);
+        });
+    });
+}
+
+async function getListOfPosts(req, res) {
     if (!req.params.index) return res.status(400).json({ error: 'Index Not Found' });
     const index = parseInt(req.params.index);
     if (isNaN(index)) return res.status(400).json({ error: 'Invalid Index' });
-
-    PostSchema.aggregate([
-        {
+    const user_id = await getUserID(req);
+    if (user_id) {
+        GET_POSTS_PIPELINE.splice(3, 0, {
             $lookup: {
-                from: require('../Models/User').collection.collectionName,
-                localField: "user_id",
-                foreignField: "_id",
-                as: "USER"
+                from: require('../Models/Likes').collection.collectionName,
+                let: {
+                    abc: "$_id"
+                },
+                pipeline: [{
+                    $match: {
+                        $expr: {
+                            $and: [
+                                { user_id: new mongoose.Types.ObjectId(user_id) },
+                                { post_id: "$$abc" }
+                            ]
+                        }
+                    }
+                },
+                { $project: { _id: 1, value: 1 } }],
+                as: "liked"
             }
-        },
-        {
-            $unwind: "$USER"
-        },
-        {
-            $lookup: {
-                from: require('../Models/Comment').collection.collectionName,
-                localField: "_id",
-                foreignField: "post_id",
-                as: "COMMENTS"
-            }
-        },
-        {
-            $project: {
-                title: 1,
-                content: 1,
-                slug: 1,
-                posted_at: 1,
-                likes: 1,
-                "USER.name": 1,
-                "comments": { $size: "$COMMENTS" }
-            }
-        },
-    ])
+        });
+        GET_POSTS_PIPELINE.splice(4, 0, { $unwind: "$liked" });
+    }
+    const posts = await PostSchema.aggregate(GET_POSTS_PIPELINE)
         .sort({ posted_at: -1 })
         // .skip(index * POST_PER_PAGE)
         // .limit(POST_PER_PAGE)
-        .exec((err, posts) => {
-            if (err) {
-                console.error(err);
-                res.status(500).json({
-                    error: 'Database Issue'
-                });
-            } else {
-                res.json(posts);
-            }
-        });
+        .exec();
+    if (user_id) {
+        GET_POSTS_PIPELINE.splice(3, 2);
+    }
 
+    res.json(posts || []);
+}
+
+// Get Post List
+router.get('/:index', (req, res) => {
+    getListOfPosts(req, res).catch(err => {
+        console.error(err);
+        res.status(500).json({ error: 'Internal Server Error' });
+    });
 });
 
 // Get Post By Slug
