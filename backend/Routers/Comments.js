@@ -49,6 +49,7 @@ router.get('/:id', (req, res) => {
                     message: 1,
                     parent_id: 1,
                     posted_at: 1,
+                    likes: 1,
                     "USER._id": 1,
                     "USER.name": 1
                 }
@@ -91,6 +92,7 @@ router.post('/:id', JWT, (req, res) => {
         message: req.body.message,
         post_id: req.params.id,
         user_id: req.user._id,
+        likes: 0,
         parent_id: (req.body.parent) ? req.body.parent : null
     });
     comment.save((error, result) => {

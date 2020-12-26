@@ -48,6 +48,7 @@ router.get('/:index', (req, res) => {
                 content: 1,
                 slug: 1,
                 posted_at: 1,
+                likes: 1,
                 "USER.name": 1,
                 "comments": { $size: "$COMMENTS" }
             }
@@ -100,6 +101,7 @@ router.get('/view/:slug', (req, res) => {
                     content: 1,
                     slug: 1,
                     posted_at: 1,
+                    likes: 1,
                     "USER._id": 1,
                     "USER.name": 1
                 }
@@ -172,7 +174,8 @@ router.post('/', JWT, (req, res) => {
                 content: req.body.content,
                 slug,
                 user_id: req.user._id,
-                posted_at: new Date()
+                posted_at: new Date(),
+                likes: 0
             });
             post.save((error, post) => {
                 if (post) {
