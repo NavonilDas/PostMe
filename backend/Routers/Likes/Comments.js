@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 
 const JWT = require('../../Middlewares/JWT');
 const LikesSchema = require('../../Models/Likes');
-const CommentSchema = require('../Models/Comment');
+const CommentSchema = require('../../Models/Comment');
 
 // Like/Dislike comment 
 router.post('/:comment_id/:isUp', JWT, (req, res) => {

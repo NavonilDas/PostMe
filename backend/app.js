@@ -26,6 +26,7 @@ require('./db');
 app.use('/users', require('./Routers/User'));
 app.use('/posts', require('./Routers/Posts'));
 app.use('/comments', require('./Routers/Comments'));
+app.use('/like', require('./Routers/Likes'));
 
 app.use('/static', express.static('uploads'));
 
