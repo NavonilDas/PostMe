@@ -84,5 +84,47 @@ router.delete('/:post_id', JWT, (req, res) => {
     });
 });
 
+// Update Post Like
+router.put('/:post_id/:isUp', JWT, (req, res) => {
+    let { post_id, isUp } = req.params;
+
+    try {
+        post_id = mongoose.Types.ObjectId(post_id);
+    } catch (_) {
+        return res.status(400).json({ error: 'Invalid Post ID' });
+    }
+
+    const value = (isUp === 'up') ? 1 : -1;
+    const $inc = {
+        likes: 0
+    };
+    if (value === 1) $inc.likes = 2;
+    else $inc.likes = -2;
+
+    const find = {
+        post_id,
+        user_id: new mongoose.Types.ObjectId(req.user._id),
+    };
+    const conf = { useFindAndModify: false };
+    // console.log($inc);
+
+    LikesSchema.findOneAndUpdate(find, { value }, conf, (err, doc) => {
+        if (err) {
+            console.error(err);
+            return res.status(500).json({ error: 'Database Error' });
+        }
+        // if prev is not same as update
+        if (doc.value !== value) {
+            PostSchema.findByIdAndUpdate(post_id, { $inc }, conf, (error, _) => {
+                if (error) {
+                    console.error(error);
+                    return res.status(500).json({ error: 'Database Error' });
+                }
+                res.json({ status: 'Done' });
+            });
+        } else res.status(400).json({ error: 'Already Liked' });
+    });
+
+});
 
 module.exports = router;
