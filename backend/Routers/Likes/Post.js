@@ -7,7 +7,7 @@ const PostSchema = require('../../Models/Post');
 
 
 // Like/Dislike Post 
-router.post('/post/:post_id/:isUp', JWT, (req, res) => {
+router.post('/:post_id/:isUp', JWT, (req, res) => {
     let { post_id, isUp } = req.params;
 
     try {
@@ -49,6 +49,40 @@ router.post('/post/:post_id/:isUp', JWT, (req, res) => {
     });
 });
 
+// Delete Post Like
+router.delete('/:post_id', JWT, (req, res) => {
+    let { post_id } = req.params;
+
+    try {
+        post_id = mongoose.Types.ObjectId(post_id);
+    } catch (_) {
+        return res.status(400).json({ error: 'Invalid Post ID' });
+    }
+
+
+    LikesSchema.findOneAndDelete({
+        post_id,
+        user_id: req.user._id
+    }, {}, (err, doc) => {
+        if (err) {
+            console.error(err);
+            return res.status(500).json({ error: 'Database Error' });
+        }
+        const $inc = {
+            likes: 0
+        };
+        if (doc.value === 1) $inc.likes = -1;
+        else if (doc.value === -1) $inc.likes = 1;
+
+        PostSchema.findByIdAndUpdate(post_id, { $inc }, { useFindAndModify: false }, (error, doc) => {
+            if (error) {
+                console.error(error);
+                return res.status(500).json({ error: 'Database Error' });
+            }
+            res.json({ status: 'Done' });
+        });
+    });
+});
 
 
 module.exports = router;
