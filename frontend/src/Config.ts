@@ -65,3 +65,16 @@ export function APIerrorHandler(err: any, ctx: any) {
 export {
     HOST,
 };
+
+
+export function getCookies(): any {
+    const cookies = document.cookie.split(';');
+    const res: any = {};
+    for (var cook of cookies) {
+        const tmp: string[] = cook.split('=');
+        if (tmp.length > 1) {
+            res[tmp[0]] = tmp[1];
+        }
+    }
+    return res;
+}

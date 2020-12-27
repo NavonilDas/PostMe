@@ -3,7 +3,7 @@ import { AppBar, Avatar, Button, IconButton, Menu, MenuItem, Modal, Paper, Tab, 
 import EditIcon from '@material-ui/icons/Edit';
 
 import axios from 'axios';
-import { APIerrorHandler, HOST } from '../Config';
+import { APIerrorHandler, getCookies, HOST } from '../Config';
 import Login from './Login';
 import SignUp from './SignUp';
 
@@ -47,18 +47,6 @@ class NavBar extends React.Component<Props, State> {
         this.logout = this.logout.bind(this);
     }
 
-    getCookie(): any {
-        const cookies = document.cookie.split(';');
-        const res: any = {};
-        for (var cook of cookies) {
-            const tmp: string[] = cook.split('=');
-            if (tmp.length > 1) {
-                res[tmp[0]] = tmp[1];
-            }
-        }
-        return res;
-    }
-
     getUsername() {
         axios.post(`${HOST}users/verify`, {}, {
             withCredentials: true,
@@ -77,7 +65,7 @@ class NavBar extends React.Component<Props, State> {
 
 
     componentDidMount() {
-        const cookie = this.getCookie();
+        const cookie = getCookies();
         if (cookie.ID) {
             this.getUsername();
         }
