@@ -1,7 +1,10 @@
 import React from 'react';
 import ExpandLessIcon from '@material-ui/icons/ExpandLess';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
-import { getCookies } from '../Config';
+
+import { getCookies, HOST } from '../Config';
+import axios from 'axios';
+
 // import { IconButton } from '@material-ui/core';
 
 interface Props {
@@ -13,23 +16,25 @@ interface Props {
 
 interface State {
     noOfLikes: number,
-    busy: boolean;
     vote: 0 | 1 | -1;
 };
 
 class LikeBox extends React.Component<Props, State> {
 
+    busy: boolean;
+
     constructor(props: Props) {
         super(props);
         this.state = {
             noOfLikes: 0,
-            busy: false,
-            vote: 0
+            vote: 0,
         };
-        
+
+        this.busy = false;
         this.isLogin = this.isLogin.bind(this);
         this.like = this.like.bind(this);
         this.dislike = this.dislike.bind(this);
+        this.updateLike = this.updateLike.bind(this);
     }
 
     componentDidMount() {
@@ -46,6 +51,31 @@ class LikeBox extends React.Component<Props, State> {
         return (type !== 'undefined' && cookies.ID !== null);
     }
 
+    updateLike(status: string) {
+        if (this.busy) return;
+
+        this.busy = true;
+        let URL = `${HOST}like/`;
+        if (this.props.postId) {
+            URL += `post/${this.props.postId}/`;
+        } else if (this.props.commentId) {
+            URL += `comment/${this.props.commentId}/`;
+        } else return null;
+        URL += status;
+        axios.put(URL, {}, { withCredentials: true })
+            .then(res => {
+                this.setState({
+                    vote: (status === 'up') ? 1 : -1,
+                    noOfLikes: this.state.noOfLikes + ((status === 'up') ? 2 : -2)
+                });
+                this.busy = false;
+            })
+            .catch(err => {
+                console.error(err);
+                alert('Something Went Wrong');
+            });
+    }
+
     like(event: React.MouseEvent<SVGSVGElement, MouseEvent>): void {
         event.stopPropagation();
 
@@ -53,12 +83,12 @@ class LikeBox extends React.Component<Props, State> {
             return alert('Please Login');
         }
 
-        if (typeof this.props.liked === "undefined" || this.props.liked.value === 0) {
+        if (typeof this.props.liked === "undefined" || this.state.vote === 0) {
             // TODO: Check Login and if Login Like
-        } else if (this.props.liked.value === 1) {
+        } else if (this.state.vote === 1) {
             // TODO: Delete Like
         } else {
-            // TODO: Update Like
+            this.updateLike('up');
         }
     }
 
@@ -69,12 +99,12 @@ class LikeBox extends React.Component<Props, State> {
             return alert('Please Login');
         }
 
-        if (typeof this.props.liked === "undefined" || this.props.liked.value === 0) {
+        if (typeof this.props.liked === "undefined" || this.state.vote === 0) {
             // TODO: Check Login and if Login Like
-        } else if (this.props.liked.value === -1) {
+        } else if (this.state.vote === -1) {
             // TODO: Delete Like
         } else {
-            // TODO: Update Like
+            this.updateLike('down');
         }
     }
 
