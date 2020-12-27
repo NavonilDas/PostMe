@@ -84,7 +84,7 @@ async function getListOfPosts(req, res) {
                             $expr: {
                                 $and: [
                                     { $eq: ["$post_id", "$$abc"] },
-                                    { $eq: ["$user_id", new mongoose.Types.ObjectId("5fec49c4afd2e13118303ee4")] }
+                                    { $eq: ["$user_id", new mongoose.Types.ObjectId(user_id)] }
                                 ]
                             }
                         }
@@ -117,70 +117,82 @@ router.get('/:index', (req, res) => {
 
 // Controller For getting Post By Slug
 async function getPostBySlug(req, res) {
+    const { slug } = req.params;
+    const user_id = await getUserID(req);
+    const GET_POST = [
+        {
+            $match: {
+                slug
+            }
+        },
+        {
+            $lookup: {
+                from: require('../Models/User').collection.collectionName,
+                localField: "user_id",
+                foreignField: "_id",
+                as: "USER"
+            }
+        },
+        {
+            $unwind: "$USER"
+        },
+        {
+            $project: {
+                title: 1,
+                content: 1,
+                slug: 1,
+                posted_at: 1,
+                likes: 1,
+                "USER._id": 1,
+                "USER.name": 1
+            }
+        }
+    ];
+    if (user_id) {
+        console.log(user_id)
+        GET_POST.push({
+            $lookup: {
+                from: require('../Models/Likes').collection.collectionName,
+                let: {
+                    abc: "$_id"
+                },
+                pipeline: [
+                    {
+                        $match: {
+                            $expr: {
+                                $and: [
+                                    { $eq: ["$post_id", "$$abc"] },
+                                    { $eq: ["$user_id", new mongoose.Types.ObjectId(user_id)] }
+                                ]
+                            }
+                        }
+                    },
+                    { $project: { _id: 1, value: 1 } }],
+                as: "liked"
+            }
+        });
+        GET_POST.push({ $unwind: "$liked" });
+    }
+    const posts = await PostSchema
+        .aggregate(GET_POST)
+        .exec();
+    if (posts.length > 0) {
+        const post = posts[0];
+        res.json({
+            post,
+            me: `${post.USER._id}` === `${user_id}`
+        });
+    } else res.status(400).json({ error: 'Post Not Found' });
 }
 
 
 // Get Post By Slug
 router.get('/view/:slug', (req, res) => {
-    const { slug } = req.params;
-    const secret = process.env.SECRET;
-    const { ID } = req.cookies || '';
-
-    jsonwebtoken.verify(ID, secret, (_, decoded) => {
-        const user_id = decoded ? decoded.id : '';
-        PostSchema.aggregate([
-            {
-                $match: {
-                    slug
-                }
-            },
-            {
-                $lookup: {
-                    from: require('../Models/User').collection.collectionName,
-                    localField: "user_id",
-                    foreignField: "_id",
-                    as: "USER"
-                }
-            },
-            {
-                $unwind: "$USER"
-            },
-            {
-                $project: {
-                    title: 1,
-                    content: 1,
-                    slug: 1,
-                    posted_at: 1,
-                    likes: 1,
-                    "USER._id": 1,
-                    "USER.name": 1
-                }
-            }
-        ])
-            .exec((err, posts) => {
-                if (err) {
-                    console.error(err);
-                    res.status(500).json({
-                        error: 'Database Issue'
-                    });
-                } else {
-                    if (posts.length > 0) {
-                        const post = posts[0];
-                        res.json({
-                            post,
-                            me: `${post.USER._id}` === `${user_id}`
-                        });
-                    }
-                    else {
-                        res.status(400).json({
-                            error: 'Post Not Found'
-                        });
-                    }
-                }
-            });
-
-    });
-
+    getPostBySlug(req, res)
+        .catch(err => {
+            console.error(err);
+            res.json({ error: "Internal Server Error" })
+        });
 });
 
 // Is My Post ie. is the post is created by me
