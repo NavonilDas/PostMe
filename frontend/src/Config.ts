@@ -1,13 +1,18 @@
 const HOST = 'http://localhost:4000/';
 
 export interface PostListItem {
-    USER: { name: string }
-    content: string
-    posted_at: string
-    slug: string
-    title: string
-    _id: string,
-    comments: number
+    USER: { name: string };
+    content: string;
+    posted_at: string;
+    slug: string;
+    title: string;
+    _id: string;
+    comments: number;
+    likes: number;
+    liked: {
+        _id: string;
+        value: 1 | -1 | 0;
+    } | undefined;
 };
 
 export interface Post {
@@ -21,7 +26,12 @@ export interface Post {
         posted_at: string,
         slug: string,
         title: string,
-        _id: string
+        _id: string,
+        likes: number;
+        liked: {
+            _id: string;
+            value: 1 | -1 | 0;
+        } | undefined;
     }
 };
 
