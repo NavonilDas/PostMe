@@ -75,11 +75,26 @@
 .comment p {
   margin: 0;
 }
-.comment-by{
+.comment-by {
   font-size: 12px;
-  color:#a1a1a1;
+  color: #a1a1a1;
   font-weight: 500;
 }
-.comment-message{
+.comment-message {
   font-size: 15px;
+}
+
+.likebox {
+  text-align: center;
+  margin-top: auto;
+  margin-bottom: auto;
+  margin-right: 15px;
+}
+
+.likebox svg.liked {
+  color: #ff8812;
+}
+
+.likebox svg:hover {
+  color: #eb4034;
 }
