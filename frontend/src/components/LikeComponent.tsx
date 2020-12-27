@@ -1,6 +1,7 @@
 import React from 'react';
 import ExpandLessIcon from '@material-ui/icons/ExpandLess';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
+import { getCookies } from '../Config';
 // import { IconButton } from '@material-ui/core';
 
 interface Props {
@@ -25,6 +26,10 @@ class LikeBox extends React.Component<Props, State> {
             busy: false,
             vote: 0
         };
+        
+        this.isLogin = this.isLogin.bind(this);
+        this.like = this.like.bind(this);
+        this.dislike = this.dislike.bind(this);
     }
 
     componentDidMount() {
@@ -35,8 +40,19 @@ class LikeBox extends React.Component<Props, State> {
         });
     }
 
+    isLogin() {
+        const cookies = getCookies();
+        const type = typeof cookies.ID;
+        return (type !== 'undefined' && cookies.ID !== null);
+    }
+
     like(event: React.MouseEvent<SVGSVGElement, MouseEvent>): void {
         event.stopPropagation();
+
+        if (!this.isLogin()) {
+            return alert('Please Login');
+        }
+
         if (typeof this.props.liked === "undefined" || this.props.liked.value === 0) {
             // TODO: Check Login and if Login Like
         } else if (this.props.liked.value === 1) {
@@ -48,6 +64,11 @@ class LikeBox extends React.Component<Props, State> {
 
     dislike(event: React.MouseEvent<SVGSVGElement, MouseEvent>): void {
         event.stopPropagation();
+
+        if (!this.isLogin()) {
+            return alert('Please Login');
+        }
+
         if (typeof this.props.liked === "undefined" || this.props.liked.value === 0) {
             // TODO: Check Login and if Login Like
         } else if (this.props.liked.value === -1) {
