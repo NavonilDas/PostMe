@@ -93,7 +93,7 @@ async function getListOfPosts(req, res) {
                 as: "liked"
             }
         });
-        GET_POSTS_PIPELINE.splice(4, 0, { $unwind: "$liked" });
+        GET_POSTS_PIPELINE.splice(4, 0, { $unwind: { path: "$liked", preserveNullAndEmptyArrays: true } });
     }
     const posts = await PostSchema.aggregate(GET_POSTS_PIPELINE)
         .sort({ posted_at: -1 })
@@ -149,7 +149,6 @@ async function getPostBySlug(req, res) {
         }
     ];
     if (user_id) {
-        console.log(user_id)
         GET_POST.push({
             $lookup: {
                 from: require('../Models/Likes').collection.collectionName,
@@ -171,11 +170,12 @@ async function getPostBySlug(req, res) {
                 as: "liked"
             }
         });
-        GET_POST.push({ $unwind: "$liked" });
+        GET_POST.push({ $unwind: { path: "$liked", preserveNullAndEmptyArrays: true } });
     }
     const posts = await PostSchema
         .aggregate(GET_POST)
         .exec();
+    console.log(slug);
     if (posts.length > 0) {
         const post = posts[0];
         res.json({

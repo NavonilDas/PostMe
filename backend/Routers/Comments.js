@@ -84,7 +84,7 @@ router.get('/:id', (req, res) => {
                     as: "liked"
                 }
             });
-            COMMENT_POST_ID.push({ $unwind: "$liked" });
+            COMMENT_POST_ID.push({ $unwind: { path: "$liked", preserveNullAndEmptyArrays: true } });
         }
 
         CommentSchema.aggregate(COMMENT_POST_ID)
