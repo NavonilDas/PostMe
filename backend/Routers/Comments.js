@@ -26,8 +26,9 @@ router.get('/:id', (req, res) => {
     const { ID } = req.cookies || '';
 
     jsonwebtoken.verify(ID, secret, (_, decoded) => {
-        const user_id = decoded ? decoded.id : '-1';
-        CommentSchema.aggregate([
+        const user_id = decoded ? decoded.id : '';
+
+        const COMMENT_POST_ID = [
             {
                 $match: {
                     post_id: new mongoose.Types.ObjectId(req.params.id)
@@ -58,8 +59,35 @@ router.get('/:id', (req, res) => {
                 $sort: {
                     posted_at: 1
                 }
-            }
-        ])
+            },
+        ];
+
+        if (user_id !== '') {
+            COMMENT_POST_ID.push({
+                $lookup: {
+                    from: require('../Models/Likes').collection.collectionName,
+                    let: {
+                        abc: "$_id"
+                    },
+                    pipeline: [
+                        {
+                            $match: {
+                                $expr: {
+                                    $and: [
+                                        { $eq: ["$comment_id", "$$abc"] },
+                                        { $eq: ["$user_id", new mongoose.Types.ObjectId(user_id)] }
+                                    ]
+                                }
+                            }
+                        },
+                        { $project: { _id: 1, value: 1 } }],
+                    as: "liked"
+                }
+            });
+            COMMENT_POST_ID.push({ $unwind: "$liked" });
+        }
+
+        CommentSchema.aggregate(COMMENT_POST_ID)
             .exec()
             .then(comments => {
                 let threads = {};
