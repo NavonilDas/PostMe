@@ -35,6 +35,7 @@ class LikeBox extends React.Component<Props, State> {
         this.like = this.like.bind(this);
         this.dislike = this.dislike.bind(this);
         this.updateLike = this.updateLike.bind(this);
+        this.deleteLike = this.deleteLike.bind(this);
     }
 
     componentDidMount() {
@@ -76,6 +77,30 @@ class LikeBox extends React.Component<Props, State> {
             });
     }
 
+    deleteLike() {
+        if (this.busy) return;
+        this.busy = true;
+        let URL = `${HOST}like/`;
+        if (this.props.postId) {
+            URL += `post/${this.props.postId}`;
+        } else if (this.props.commentId) {
+            URL += `comment/${this.props.commentId}`;
+        } else return null;
+        axios.delete(URL, { withCredentials: true })
+            .then(res => {
+                const ini = this.state.vote;
+                this.setState({
+                    vote: 0,
+                    noOfLikes: this.state.noOfLikes - ini
+                });
+                this.busy = false;
+            })
+            .catch(err => {
+                console.error(err);
+                alert('Something Went Wrong');
+            });
+    }
+
     like(event: React.MouseEvent<SVGSVGElement, MouseEvent>): void {
         event.stopPropagation();
 
@@ -86,7 +111,7 @@ class LikeBox extends React.Component<Props, State> {
         if (typeof this.props.liked === "undefined" || this.state.vote === 0) {
             // TODO: Check Login and if Login Like
         } else if (this.state.vote === 1) {
-            // TODO: Delete Like
+            this.deleteLike();
         } else {
             this.updateLike('up');
         }
@@ -102,7 +127,7 @@ class LikeBox extends React.Component<Props, State> {
         if (typeof this.props.liked === "undefined" || this.state.vote === 0) {
             // TODO: Check Login and if Login Like
         } else if (this.state.vote === -1) {
-            // TODO: Delete Like
+            this.deleteLike();
         } else {
             this.updateLike('down');
         }
