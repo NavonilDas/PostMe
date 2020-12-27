@@ -3,6 +3,7 @@ import React from 'react';
 import ChatIcon from '@material-ui/icons/Chat';
 // import ShareIcon from '@material-ui/icons/Share';
 import { PostListItem } from '../Config';
+import LikeBox from './LikeComponent';
 
 interface Props {
     post: PostListItem,
@@ -21,23 +22,33 @@ class PostCard extends React.Component<Props> {
                 }}
             >
                 <CardContent>
-                    <Typography
-                        style={{ fontSize: "14px" }}
-                        color="textSecondary"
-                        gutterBottom
-                    >
-                        By {this.props.post.USER.name}
-                    </Typography>
+                    <div className="d-flex">
+                        <LikeBox
+                            likes={this.props.post.likes}
+                            postId={this.props.post._id}
+                            liked={this.props.post.liked}
+                        />
+                        <div>
+                            <Typography
+                                style={{ fontSize: "14px" }}
+                                color="textSecondary"
+                                gutterBottom
+                            >
+                                By {this.props.post.USER.name}
+                            </Typography>
 
-                    <Typography variant="h5" component="h2">
-                        {this.props.post.title}
-                    </Typography>
+                            <Typography variant="h5" component="h2">
+                                {this.props.post.title}
+                            </Typography>
 
-                    <div dangerouslySetInnerHTML={{ __html: this.props.post.content }} />
+                            <div dangerouslySetInnerHTML={{ __html: this.props.post.content }} />
+                        </div>
+                    </div>
 
                 </CardContent>
 
                 <CardActions>
+
                     <Button
                         startIcon={<ChatIcon />}
                         size="small"
@@ -48,7 +59,7 @@ class PostCard extends React.Component<Props> {
                             }
                         }}
                     >
-                        {this.props.post.comments} Comments
+                        {this.props.post.comments || 0} Comments
                     </Button>
 
                     {/* <Button

@@ -27,7 +27,7 @@ class Home extends React.Component<Props, State> {
     }
 
     componentDidMount() {
-        axios.get(`${HOST}posts/0`)
+        axios.get(`${HOST}posts/0`, { withCredentials: true })
             .then(res => {
                 this.setState({
                     posts: res.data

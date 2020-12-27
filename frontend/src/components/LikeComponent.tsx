@@ -4,30 +4,57 @@ import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 // import { IconButton } from '@material-ui/core';
 
 interface Props {
-
+    postId?: string;
+    commentId?: string;
+    liked: { _id: string; value: -1 | 1 | 0; } | undefined;
+    likes: number;
 };
 
 interface State {
-
+    noOfLikes: number,
+    busy: boolean;
+    vote: 0 | 1 | -1;
 };
 
-class Likes extends React.Component<Props, State> {
+class LikeBox extends React.Component<Props, State> {
 
     constructor(props: Props) {
         super(props);
         this.state = {
-
+            noOfLikes: 0,
+            busy: false,
+            vote: 0
         };
+    }
+
+    componentDidMount() {
+        // console.log(this.props.liked);
+        this.setState({
+            noOfLikes: this.props.likes,
+            vote: (this.props.liked) ? this.props.liked.value : 0
+        });
     }
 
     like(event: React.MouseEvent<SVGSVGElement, MouseEvent>): void {
         event.stopPropagation();
-        // TODO: Like
+        if (typeof this.props.liked === "undefined" || this.props.liked.value === 0) {
+            // TODO: Check Login and if Login Like
+        } else if (this.props.liked.value === 1) {
+            // TODO: Delete Like
+        } else {
+            // TODO: Update Like
+        }
     }
 
     dislike(event: React.MouseEvent<SVGSVGElement, MouseEvent>): void {
         event.stopPropagation();
-        // TODO: Unlike
+        if (typeof this.props.liked === "undefined" || this.props.liked.value === 0) {
+            // TODO: Check Login and if Login Like
+        } else if (this.props.liked.value === -1) {
+            // TODO: Delete Like
+        } else {
+            // TODO: Update Like
+        }
     }
 
     render() {
@@ -38,11 +65,13 @@ class Likes extends React.Component<Props, State> {
                 <ExpandLessIcon
                     fontSize="large"
                     onClick={this.like}
+                    className={(this.state.vote === 1) ? 'liked' : ''}
                 />
-                    0
+                {this.state.noOfLikes}
                 <ExpandMoreIcon
                     fontSize="large"
                     onClick={this.dislike}
+                    className={(this.state.vote === -1) ? 'liked' : ''}
                 />
             </div>
         );
@@ -50,4 +79,4 @@ class Likes extends React.Component<Props, State> {
 }
 
 
-export default Likes;
+export default LikeBox;
