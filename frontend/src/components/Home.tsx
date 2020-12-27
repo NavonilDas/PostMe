@@ -33,7 +33,7 @@ class Home extends React.Component<Props, State> {
                     posts: res.data
                 })
             })
-            .catch(err => APIerrorHandler(err, this.setState));
+            .catch(err => APIerrorHandler(err, this));
     }
 
     render() {
