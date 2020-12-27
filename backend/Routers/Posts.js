@@ -67,6 +67,9 @@ async function getListOfPosts(req, res) {
     if (!req.params.index) return res.status(400).json({ error: 'Index Not Found' });
     let index = parseInt(req.params.index);
     if (isNaN(index)) return res.status(400).json({ error: 'Invalid Index' });
+
+    index = (index < 1) ? 1 : index;
+
     const user_id = await getUserID(req);
     if (user_id) {
         GET_POSTS_PIPELINE.splice(3, 0, {
@@ -94,6 +97,8 @@ async function getListOfPosts(req, res) {
     }
     const posts = await PostSchema.aggregate(GET_POSTS_PIPELINE)
         .sort({ posted_at: -1 })
+        .skip((index - 1) * POST_PER_PAGE)
+        .limit(POST_PER_PAGE)
         .exec();
     if (user_id) {
         GET_POSTS_PIPELINE.splice(3, 2);
