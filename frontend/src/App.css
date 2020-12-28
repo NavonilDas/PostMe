@@ -97,3 +97,13 @@
 .likebox svg:hover {
   color: #eb4034;
 }
+
+.card-post-content {
+  max-height: 450px;
+  overflow: hidden;
+}
+
+.post-content p{
+  margin: 0;
+  padding: 0;
+}

@@ -41,7 +41,9 @@ class PostCard extends React.Component<Props> {
                                 {this.props.post.title}
                             </Typography>
 
-                            <div dangerouslySetInnerHTML={{ __html: this.props.post.content }} />
+                            <div dangerouslySetInnerHTML={{ __html: this.props.post.content }}
+                                className="card-post-content"
+                            />
                         </div>
                     </div>
 

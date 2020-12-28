@@ -162,7 +162,9 @@ class ViewPost extends React.Component<Props, State> {
                             {this.state.post?.post.title}
                         </Typography>
 
-                        <div dangerouslySetInnerHTML={{ __html: (this.state.post) ? this.state.post.post.content : '' }} />
+                        <div 
+                        className="post-content"
+                        dangerouslySetInnerHTML={{ __html: (this.state.post) ? this.state.post.post.content : '' }} />
 
                         <div className="d-flex">
                             <div style={{ flexGrow: 1 }}>
