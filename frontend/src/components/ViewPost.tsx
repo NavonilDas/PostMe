@@ -218,6 +218,8 @@ class ViewPost extends React.Component<Props, State> {
                             isLogin={this.state.isLogin}
                             message={comment.message}
                             id={comment._id}
+                            likes={comment.likes}
+                            liked={comment.liked}
                             key={ind}
                             by={by}
                             childrens={comment.children}

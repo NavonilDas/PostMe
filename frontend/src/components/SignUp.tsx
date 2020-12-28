@@ -148,7 +148,6 @@ class SignUp extends React.Component<Props, State> {
 
         axios.post(`${HOST}users/signup`, body, config)
             .then(res => {
-                console.log(res);
                 if (res.data && res.data.id) {
                     this.setState({
                         openSnackbar: true,

@@ -5,6 +5,7 @@ import ReplyIcon from '@material-ui/icons/Reply';
 
 import CreateIcon from '@material-ui/icons/Create';
 import DeleteIcon from '@material-ui/icons/Delete';
+import LikeBox from './LikeComponent';
 
 interface Props {
     childrens?: any;
@@ -15,6 +16,11 @@ interface Props {
     by: string;
     my_id: string;
     isMine: boolean;
+    likes: number;
+    liked: {
+        _id: string;
+        value: 1 | -1 | 0;
+    } | undefined;
     refreshComment: () => void;
     deleteComment: (id: string) => void;
 };
@@ -99,30 +105,39 @@ class Comment extends React.Component<Props, State> {
             <div className="comment" id={this.props.id}>
 
                 <div>
-                    <span className="comment-by">By {this.props.by}</span>
-
-                    {
-                        (!this.state.editComment) ?
-                            (
-                                <div className="comment-message" dangerouslySetInnerHTML={{ __html: this.state.message }} />
-                            )
-                            :
-                            ''
-                    }
-
 
                     <div className="d-flex">
-                        <Button
-                            startIcon={<ReplyIcon />}
-                            disabled={this.state.reply || !this.props.isLogin || this.state.editComment}
-                            size="small"
-                            onClick={() => this.setState({ reply: true })}
-                        >
-                            Reply
-                        </Button>
-                        {(this.props.isMine) ? this.renderOptions() : ''}
-                    </div>
+                        <LikeBox
+                            likes={this.props.likes}
+                            liked={this.props.liked}
+                            commentId={this.props.id}
+                        />
+                        <div>
+                            <span className="comment-by">By {this.props.by}</span>
 
+                            {
+                                (!this.state.editComment) ?
+                                    (
+                                        <div className="comment-message" dangerouslySetInnerHTML={{ __html: this.state.message }} />
+                                    )
+                                    :
+                                    ''
+                            }
+
+
+                            <div className="d-flex">
+                                <Button
+                                    startIcon={<ReplyIcon />}
+                                    disabled={this.state.reply || !this.props.isLogin || this.state.editComment}
+                                    size="small"
+                                    onClick={() => this.setState({ reply: true })}
+                                >
+                                    Reply
+                        </Button>
+                                {(this.props.isMine) ? this.renderOptions() : ''}
+                            </div>
+                        </div>
+                    </div>
 
                     {((this.state.reply || this.state.editComment) && this.props.isLogin) ?
                         <div style={{ padding: "11px" }}>
@@ -154,6 +169,8 @@ class Comment extends React.Component<Props, State> {
                                     key={ind}
                                     by={by}
                                     childrens={comment.children}
+                                    likes={comment.likes}
+                                    liked={comment.liked}
                                     post_id={this.props.post_id || ''}
                                     my_id={my_id}
                                     isMine={com_usr_id === my_id}

@@ -41,7 +41,6 @@ class LikeBox extends React.Component<Props, State> {
     }
 
     componentDidMount() {
-        // console.log(this.props.liked);
         this.setState({
             noOfLikes: this.props.likes,
             vote: (this.props.liked) ? this.props.liked.value : 0
