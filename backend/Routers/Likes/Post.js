@@ -2,7 +2,7 @@ const router = require('express').Router();
 const mongoose = require('mongoose');
 
 const JWT = require('../../Middlewares/JWT');
-const LikesSchema = require('../../Models/Likes');
+const LikesSchema = require('../../Models/PostLikes');
 const PostSchema = require('../../Models/Post');
 
 
@@ -29,14 +29,12 @@ router.post('/:post_id/:isUp', JWT, (req, res) => {
         value
     });
 
-    console.log($inc);
-
     like.save((err, _) => {
         if (err) {
+            console.error(err);
             if (err.code === 11000) {
                 return res.status(400).json({ error: 'Like Already Exist' });
             }
-            console.error(err);
             return res.status(500).json({ error: 'Database Error' });
         }
         PostSchema.findByIdAndUpdate(post_id, { $inc }, { useFindAndModify: false }, (error, doc) => {
@@ -106,7 +104,6 @@ router.put('/:post_id/:isUp', JWT, (req, res) => {
         user_id: new mongoose.Types.ObjectId(req.user._id),
     };
     const conf = { useFindAndModify: false };
-    // console.log($inc);
 
     LikesSchema.findOneAndUpdate(find, { value }, conf, (err, doc) => {
         if (err) {

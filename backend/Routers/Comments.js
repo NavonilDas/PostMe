@@ -65,7 +65,7 @@ router.get('/:id', (req, res) => {
         if (user_id !== '') {
             COMMENT_POST_ID.push({
                 $lookup: {
-                    from: require('../Models/Likes').collection.collectionName,
+                    from: require('../Models/CommentLikes').collection.collectionName,
                     let: {
                         abc: "$_id"
                     },

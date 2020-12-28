@@ -74,7 +74,7 @@ async function getListOfPosts(req, res) {
     if (user_id) {
         GET_POSTS_PIPELINE.splice(3, 0, {
             $lookup: {
-                from: require('../Models/Likes').collection.collectionName,
+                from: require('../Models/PostLikes').collection.collectionName,
                 let: {
                     abc: "$_id"
                 },
@@ -151,7 +151,7 @@ async function getPostBySlug(req, res) {
     if (user_id) {
         GET_POST.push({
             $lookup: {
-                from: require('../Models/Likes').collection.collectionName,
+                from: require('../Models/PostLikes').collection.collectionName,
                 let: {
                     abc: "$_id"
                 },
@@ -175,7 +175,6 @@ async function getPostBySlug(req, res) {
     const posts = await PostSchema
         .aggregate(GET_POST)
         .exec();
-    console.log(slug);
     if (posts.length > 0) {
         const post = posts[0];
         res.json({

@@ -2,7 +2,7 @@ const router = require('express').Router();
 const mongoose = require('mongoose');
 
 const JWT = require('../../Middlewares/JWT');
-const LikesSchema = require('../../Models/Likes');
+const LikesSchema = require('../../Models/CommentLikes');
 const CommentSchema = require('../../Models/Comment');
 
 // Like/Dislike comment 
@@ -105,7 +105,6 @@ router.put('/:comment_id/:isUp', JWT, (req, res) => {
         user_id: new mongoose.Types.ObjectId(req.user._id),
     };
     const conf = { useFindAndModify: false };
-    // console.log($inc);
 
     LikesSchema.findOneAndUpdate(find, { value }, conf, (err, doc) => {
         if (err) {
