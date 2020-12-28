@@ -100,7 +100,6 @@ class CreatePost extends React.Component<Props, State> {
         } else {
             axios.post(`${HOST}posts`, body, { withCredentials: true })
                 .then(res => {
-                    console.log(res.data);
                     if (res.data && res.data.status) {
                         this.props.history.push(`/edit/${res.data.status}`);
                         this.setState({
