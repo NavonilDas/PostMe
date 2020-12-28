@@ -36,6 +36,8 @@ class LikeBox extends React.Component<Props, State> {
         this.dislike = this.dislike.bind(this);
         this.updateLike = this.updateLike.bind(this);
         this.deleteLike = this.deleteLike.bind(this);
+        this.changeLike = this.changeLike.bind(this);
+
     }
 
     componentDidMount() {
@@ -101,6 +103,31 @@ class LikeBox extends React.Component<Props, State> {
             });
     }
 
+    changeLike(status: string) {
+        if (this.busy) return;
+
+        this.busy = true;
+        let URL = `${HOST}like/`;
+        if (this.props.postId) {
+            URL += `post/${this.props.postId}/`;
+        } else if (this.props.commentId) {
+            URL += `comment/${this.props.commentId}/`;
+        } else return null;
+        URL += status;
+        axios.post(URL, {}, { withCredentials: true })
+            .then(res => {
+                this.setState({
+                    vote: (status === 'up') ? 1 : -1,
+                    noOfLikes: this.state.noOfLikes + ((status === 'up') ? 1 : -1)
+                });
+                this.busy = false;
+            })
+            .catch(err => {
+                console.error(err);
+                alert('Something Went Wrong');
+            });
+    }
+
     like(event: React.MouseEvent<SVGSVGElement, MouseEvent>): void {
         event.stopPropagation();
 
@@ -109,7 +136,7 @@ class LikeBox extends React.Component<Props, State> {
         }
 
         if (typeof this.props.liked === "undefined" || this.state.vote === 0) {
-            // TODO: Check Login and if Login Like
+            this.changeLike('up');
         } else if (this.state.vote === 1) {
             this.deleteLike();
         } else {
@@ -125,7 +152,7 @@ class LikeBox extends React.Component<Props, State> {
         }
 
         if (typeof this.props.liked === "undefined" || this.state.vote === 0) {
-            // TODO: Check Login and if Login Like
+            this.changeLike('up');
         } else if (this.state.vote === -1) {
             this.deleteLike();
         } else {
