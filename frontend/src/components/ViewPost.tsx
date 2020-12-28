@@ -12,6 +12,7 @@ import CreateIcon from '@material-ui/icons/Create';
 import DeleteIcon from '@material-ui/icons/Delete';
 import Comment from './Comment';
 import ConfirmDialog from './ConfirmDialog';
+import LikeBox from './LikeComponent';
 
 interface Props {
     history?: any,
@@ -148,35 +149,46 @@ class ViewPost extends React.Component<Props, State> {
         return (
             <Paper className="view-post">
 
-                <span className="comment-by">By {this.state.post?.post.USER.name || ''}</span>
-
-                <Typography variant="h4" gutterBottom>
-                    {this.state.post?.post.title}
-                </Typography>
-
-                <div dangerouslySetInnerHTML={{ __html: (this.state.post) ? this.state.post.post.content : '' }} />
-
                 <div className="d-flex">
-                    <div style={{ flexGrow: 1 }}>
-                        <Button
-                            startIcon={<ChatIcon />}
-                            size="small"
-                        >
-                            {(this.state.comments) ? this.state.comments.count : 0} Comments
-                        </Button>
+                    <LikeBox
+                        likes={this.state.post?.post.likes || 0}
+                        liked={this.state.post?.post.liked}
+                        postId={this.state.post?.post._id}
+                    />
+                    <div style={{ width: "100%" }}>
+                        <span className="comment-by">By {this.state.post?.post.USER.name || ''}</span>
 
-                        {/* <Button
-                        startIcon={<ShareIcon />}
-                        size="small"
-                    >
-                        Share
-                    </Button> */}
+                        <Typography variant="h4" gutterBottom>
+                            {this.state.post?.post.title}
+                        </Typography>
+
+                        <div dangerouslySetInnerHTML={{ __html: (this.state.post) ? this.state.post.post.content : '' }} />
+
+                        <div className="d-flex">
+                            <div style={{ flexGrow: 1 }}>
+                                <Button
+                                    startIcon={<ChatIcon />}
+                                    size="small"
+                                >
+                                    {(this.state.comments) ? this.state.comments.count : 0} Comments
+                                </Button>
+
+                                {/* <Button
+                                    startIcon={<ShareIcon />}
+                                    size="small"
+                                >
+                                    Share
+                                </Button> */}
+
+                            </div>
+
+                            {(this.state.post?.me) ? this.renderPostOptions() : ''}
+
+                        </div>
 
                     </div>
-
-                    {(this.state.post?.me) ? this.renderPostOptions() : ''}
-
                 </div>
+
                 {(this.state.isLogin) ?
                     <PostComment
                         post_id={this.state.post?.post._id}

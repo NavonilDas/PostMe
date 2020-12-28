@@ -152,7 +152,7 @@ class LikeBox extends React.Component<Props, State> {
         }
 
         if (typeof this.props.liked === "undefined" || this.state.vote === 0) {
-            this.changeLike('up');
+            this.changeLike('down');
         } else if (this.state.vote === -1) {
             this.deleteLike();
         } else {
